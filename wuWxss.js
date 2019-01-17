@@ -254,6 +254,12 @@ function doWxss(dir,cb){
 			let setCssToHeadFunctionEndIndexes = chomp_balanced(mainCode, setCssToHeadFunctionParamIndexes.end + 1, '{', '}');
 			mainCode = mainCode.substr(0, setCssToHeadFuctionStartIndex) + mainCode.substr(setCssToHeadFunctionEndIndexes.end + 1);
 
+			//remove var __wxAppCode__ = {};
+			let wxAppCodeVarDeclare = "var __wxAppCode__={};";
+			let wxAppCodeVarDeclareIndex = mainCode.indexOf(wxAppCodeVarDeclare);
+			let wxAppCodeVarDeclareEnd = wxAppCodeVarDeclareIndex + wxAppCodeVarDeclare.length;
+			mainCode = mainCode.substr(0, wxAppCodeVarDeclareIndex) + mainCode.substr(wxAppCodeVarDeclareEnd);
+
 			code=code.slice(code.indexOf('var setCssToHead = function(file, _xcInvalid'));
 			code=code.slice(code.indexOf('\nvar _C= ')+1);
 			//let oriCode=code;
