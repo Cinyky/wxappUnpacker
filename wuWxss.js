@@ -233,13 +233,15 @@ function doWxss(dir,cb){
 
 			let scriptCode = code;
 			//extract script content from html
-			try {
-				const $ = cheerio.load(code);
-				scriptCode = [].join.apply($('html').find('script').map(function (item) {
-					return $(this).html();
-				}, "\n"));
-			} catch (e) {
-				//ignore
+			if (frameFile.endsWith(".html")) {
+				try {
+					const $ = cheerio.load(code);
+					scriptCode = [].join.apply($('html').find('script').map(function (item) {
+						return $(this).html();
+					}, "\n"));
+				} catch (e) {
+					//ignore
+				}
 			}
 
 			let window = {
