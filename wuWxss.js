@@ -4,6 +4,7 @@ const fs=require("fs");
 const {VM}=require('vm2');
 const cssbeautify=require('cssbeautify');
 const csstree=require('css-tree');
+const cheerio = require('cheerio');
 function chomp_balanced(input_str, scan_start, open_char, close_char) {
 	quote_chars = ['\"', '\''];
 	let now = scan_start - 1;
@@ -229,6 +230,18 @@ function doWxss(dir,cb){
 			frameFile=path.resolve(dir,"page-frame.js");
 		else throw Error("page-frame-like file is not found in the package by auto.");
 		wu.get(frameFile,code=>{
+
+			let scriptCode = code;
+			//extract script content from html
+			try {
+				const $ = cheerio.load(code);
+				scriptCode = [].join.apply($('html').find('script').map(function (item) {
+					return $(this).html();
+				}, "\n"));
+			} catch (e) {
+				//ignore
+			}
+
 			let window = {
 				screen: {
 					width: 720,
@@ -246,7 +259,7 @@ function doWxss(dir,cb){
 			let mainCode = 'window= ' + JSON.stringify(window) +
 				';\nnavigator=' + JSON.stringify(navigator) +
 				//";\ndocument=" + document +
-				";\n" + code;
+				";\n" + scriptCode;
 
 			//remove setCssToHead function
 			let setCssToHeadFuctionStartIndex = mainCode.indexOf("var setCssToHead = function");
